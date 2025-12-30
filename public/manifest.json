@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "Lee-Check",
+  "version": "1.0",
+  "description": "A LeetCode analysis extension built from scratch",
+  "content_scripts": [
+    {
+      "matches": ["https://leetcode.com/*"],
+      "js": ["content.js"]
+    }
+  ]
+}
