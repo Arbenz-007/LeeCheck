@@ -1,46 +1,29 @@
 import { useEffect, useState } from "react";
-import { getContestQuestion, getLastFiveContest, getUserInfo } from "./utils/api";
-import ContestCard from "./Components/ContestCard";
-import  Container  from "./Components/Container";
+import { useDispatch } from "react-redux";
+import { setContests } from "./utils/contestSlice";
 import useTestContest from "./utils/useTestContest";
-import useContestQuestions from "./utils/useContestQuestions";
+import Container from "./Components/Container";
 
 function App() {
   const [userName, setUserName] = useState(null);
+  const dispatch = useDispatch();
 
-  // URL-based username detection
   useEffect(() => {
-    const pathParts = window.location.pathname.split("/");
-
-    if (pathParts[1] === "u" && pathParts[2]) {
-      setUserName(pathParts[2]);
-    } else {
-      setUserName(null);
+    const parts = window.location.pathname.split("/");
+    if (parts[1] === "u" && parts[2]) {
+      setUserName(parts[2]);
     }
-
-    console.log("checkUser ran");
   }, []);
 
-  // Fetch logged-in user info via GraphQL
-
   const contestData = useTestContest(userName);
-  console.log("contest data:-")
-  console.log(contestData)
 
-  const questions = useContestQuestions("weekly-contest-481");
-  console.log(questions)
-
-  // Log when state updates
   useEffect(() => {
-    console.log("Username from URL:", userName);
-  }, [userName]);
+    if (contestData.length > 0) {
+      dispatch(setContests(contestData));
+    }
+  }, [contestData, dispatch]);
 
-
-  return (
-    <>
-    <Container/>
-    </>
-  );
+  return <Container />;
 }
 
 export default App;

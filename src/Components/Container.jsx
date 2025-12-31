@@ -7,13 +7,11 @@ const Container = () => {
 
   return (
     <div className="fixed z-[9999] bottom-10 right-10 font-sans">
-      
       {isOpen && (
         <div className="mb-4 w-80 animate-in fade-in zoom-in duration-200">
-          <ContestCard onClose={()=>setIsOpen(!isOpen)} />
+          <ContestCard onClose={() => setIsOpen((prev) => !prev)} />
         </div>
       )}
-     
 
       {/* BUTTON (ALWAYS CLICKABLE) */}
       <button

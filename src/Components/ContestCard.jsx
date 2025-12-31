@@ -1,7 +1,12 @@
 import React from 'react';
 import { X } from 'lucide-react';
+import { useSelector } from 'react-redux';
 
 const ContestCard = ({ onClose }) => {
+
+  const contests= useSelector((store)=>store.contests.list)
+  console.log("in contestcard");
+  console.log(contests);
   return (
     // The card itself now has the gray background, rounded corners, and shadow.
     <div className="flex flex-col h-full max-h-[600px] bg-gray-200 p-5 rounded-xl shadow-2xl overflow-hidden">
