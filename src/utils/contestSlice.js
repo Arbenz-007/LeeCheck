@@ -19,7 +19,7 @@ const contestSlice = createSlice({
       const { contestSlug, questions } = action.payload;
 
       const contest = state.list.find(
-        (c) => c.slug === contestSlug
+        (c) => c.contest.titleSlug === contestSlug
       );
 
       if (contest) {

@@ -1,52 +1,90 @@
-import React from 'react';
-import { X } from 'lucide-react';
-import { useSelector } from 'react-redux';
+import React, { useState } from "react";
+import { X } from "lucide-react";
+import { useSelector, useDispatch } from "react-redux";
+import { getContestQuestion } from "../utils/api";
+import { setContestQuestions } from "../utils/contestSlice";
 
 const ContestCard = ({ onClose }) => {
+  const contests = useSelector((store) => store.contests.list);
+  const dispatch = useDispatch();
 
-  const contests= useSelector((store)=>store.contests.list)
-  console.log("in contestcard");
-  console.log(contests);
+  const [openSlug, setOpenSlug] = useState(null);
+  const [loadingSlug, setLoadingSlug] = useState(null);
+
+  const handleContestClick = async (contestItem) => {
+    const slug = contestItem.contest.titleSlug;
+
+    setOpenSlug((prev) => (prev === slug ? null : slug));
+
+    if (!contestItem.questionsLoaded) {
+      setLoadingSlug(slug);
+
+      const questions = await getContestQuestion(slug);
+      console.log("question");
+      console.log(questions);
+
+      dispatch(
+        setContestQuestions({
+          contestSlug: slug,
+          questions,
+        })
+      );
+
+      setLoadingSlug(null);
+    }
+  };
+
   return (
-    // The card itself now has the gray background, rounded corners, and shadow.
-    <div className="flex flex-col h-full max-h-[600px] bg-gray-200 p-5 rounded-xl shadow-2xl overflow-hidden">
+    <div className="flex flex-col max-h-[600px] bg-gray-200 p-5 rounded-xl shadow-2xl overflow-hidden">
       
       {/* Header */}
       <div className="mb-5 flex justify-between items-start">
-        <div>
-          <h2 className="font-bold text-2xl text-gray-800">LeeCheck</h2>
-          <p className="text-sm text-gray-600 font-medium mt-1">User :User Name</p>
-        </div>
-        {/* Close button integrated into the header */}
-        <button 
-          onClick={onClose} 
-          className="p-1.5 hover:bg-gray-300 rounded-full transition-colors text-gray-500"
-          aria-label="Close"
-        >
+        <h2 className="font-bold text-2xl text-gray-800">LeeCheck</h2>
+        <button onClick={onClose}>
           <X size={20} />
         </button>
       </div>
 
-      {/* Scrollable List of Rows */}
+      {/* Contest List */}
       <div className="space-y-3 overflow-y-auto pr-1">
-        {/* These are hardcoded examples based on your image. 
-            You would replace this with a .map() over your actual data. */}
-        <RedDetailRow contestName="Contest Name" result="Result ()" />
-        <RedDetailRow contestName="Contest Name" result="Result ()" />
-        <RedDetailRow contestName="Contest Name" result="Result ()" />
-        <RedDetailRow contestName="Contest Name" result="Result ()" />
-        <RedDetailRow contestName="Contest Name" result="Result ()" />
-        <RedDetailRow contestName="Contest Name" result="Result ()" />
-      </div>
+        {contests.length === 0 ? (
+          <p className="text-sm text-gray-500">No contests found</p>
+        ) : (
+          contests.map((contestItem) => (
+            <div key={contestItem.contest.titleSlug}>
+              <RedDetailRow
+                contestName={contestItem.contest.title}
+                result={`Rank: ${contestItem.ranking}`}
+                onClick={() => handleContestClick(contestItem)}
+              />
 
+              {openSlug === contestItem.contest.titleSlug && (
+                <div className="mt-2 ml-2 text-sm">
+                  {loadingSlug === contestItem.contest.titleSlug && (
+                    <p className="text-black">Loading questions...</p>
+                  )}
+
+                  {contestItem.questions.map((q) => (
+                    <div className="text-black " key={q.titleSlug}>
+                      • {q.title}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 };
 
-// A reusable component for the red rows to keep the code clean.
-const RedDetailRow = ({ contestName, result }) => (
-  <div className="flex justify-between items-center p-4 bg-[#d9534f] text-white rounded-lg text-sm font-semibold shadow-sm">
-    <span>{contestName} - :</span>
+const RedDetailRow = ({ contestName, result, onClick }) => (
+  <div
+    onClick={onClick}
+    className="flex justify-between items-center p-4 bg-[#d9534f] text-white rounded-lg text-sm font-semibold shadow-sm cursor-pointer"
+  >
+    <span>{contestName}</span>
     <span>{result}</span>
   </div>
 );
